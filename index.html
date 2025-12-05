@@ -1,15 +1,194 @@
 <!DOCTYPE html>
-<html>
+<html lang="ar" dir="rtl">
 <head>
-    <title>فحص قاعدة البيانات</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📊 لوحة تحكم قاعدة البيانات - للقراءة فقط</title>
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Arial', sans-serif; }
+        
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .dashboard {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #3498db;
+        }
+        
+        .header h1 {
+            font-size: 32px;
+            color: #3498db;
+            margin-bottom: 10px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            border: 1px solid rgba(52, 152, 219, 0.3);
+            transition: transform 0.3s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: #3498db;
+        }
+        
+        .stat-value {
+            font-size: 48px;
+            font-weight: bold;
+            color: #2ecc71;
+            margin: 10px 0;
+        }
+        
+        .notes-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+        }
+        
+        .note-card {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 15px;
+            padding: 25px;
+            border-left: 5px solid #3498db;
+            transition: all 0.3s;
+        }
+        
+        .note-card:hover {
+            background: rgba(255, 255, 255, 0.12);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .note-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .note-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #ecf0f1;
+        }
+        
+        .note-id {
+            font-size: 12px;
+            color: #95a5a6;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 3px 8px;
+            border-radius: 10px;
+        }
+        
+        .note-content {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .note-footer {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #bdc3c7;
+            margin-top: 15px;
+        }
+        
+        .code-indicator {
+            color: #f1c40f;
+            font-weight: bold;
+        }
+        
+        .last-update {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #95a5a6;
+            font-size: 14px;
+        }
+        
+        .auto-refresh {
+            background: rgba(46, 204, 113, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            text-align: center;
+            border: 1px solid rgba(46, 204, 113, 0.4);
+        }
+        
+        @media (max-width: 768px) {
+            .notes-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .stat-card {
+                padding: 20px;
+            }
+        }
+    </style>
 </head>
 <body>
-    <h1>التحقق من عدد الملاحظات</h1>
-    <div id="result">جاري التحقق...</div>
-    
+    <div class="dashboard">
+        <div class="header">
+            <h1>📊 لوحة تحكم قاعدة البيانات</h1>
+            <p>عرض حي للملاحظات - تحديث تلقائي كل 30 ثانية</p>
+        </div>
+        
+        <div class="stats-grid" id="statsGrid">
+            <!-- ستظهر الإحصائيات هنا -->
+        </div>
+        
+        <div id="notesContainer" class="notes-container">
+            <!-- ستظهر الملاحظات هنا -->
+        </div>
+        
+        <div class="auto-refresh">
+            🔄 التحديث التلقائي مفعّل - يتم تحديث البيانات كل 30 ثانية
+        </div>
+        
+        <div class="last-update" id="lastUpdate">
+            آخر تحديث: --
+        </div>
+    </div>
+
+    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    
     <script>
+        // ⚠️ بيانات Firebase الخاصة بك
         const firebaseConfig = {
             apiKey: "AIzaSyDzmBBnFmLHe2L-H4BbmlM8krkTWHIOG0c",
             authDomain: "mynotesapp-83195.firebaseapp.com",
@@ -20,44 +199,116 @@
             measurementId: "G-7BJMMJ3PJG"
         };
         
+        // تهيئة Firebase
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
         
-        async function checkNotes() {
+        // تحديث البيانات
+        async function updateDashboard() {
             try {
-                const snapshot = await db.collection('notes').get();
-                const resultDiv = document.getElementById('result');
+                const snapshot = await db.collection('notes')
+                    .orderBy('updatedAt', 'desc')
+                    .get();
                 
-                resultDiv.innerHTML = `
-                    <h3>✅ تم الاتصال بنجاح</h3>
-                    <p><strong>المشروع:</strong> ${firebaseConfig.projectId}</p>
-                    <p><strong>عدد الملاحظات:</strong> ${snapshot.size}</p>
-                    <hr>
-                    <h4>تفاصيل الملاحظات:</h4>
+                const notes = [];
+                let totalCodes = 0;
+                
+                snapshot.forEach(doc => {
+                    const note = {
+                        id: doc.id,
+                        ...doc.data()
+                    };
+                    notes.push(note);
+                    
+                    // حساب عدد الأكواد
+                    const codeBlocks = (note.content || '').match(/```[\s\S]*?```/g);
+                    if (codeBlocks) totalCodes += codeBlocks.length;
+                });
+                
+                // تحديث الإحصائيات
+                document.getElementById('statsGrid').innerHTML = `
+                    <div class="stat-card">
+                        <div>📝 عدد الملاحظات</div>
+                        <div class="stat-value">${snapshot.size}</div>
+                        <div>ملاحظة</div>
+                    </div>
+                    <div class="stat-card">
+                        <div>💻 عدد الأكواد</div>
+                        <div class="stat-value">${totalCodes}</div>
+                        <div>كود</div>
+                    </div>
+                    <div class="stat-card">
+                        <div>🕒 آخر تحديث</div>
+                        <div class="stat-value">${notes.length > 0 ? 
+                            new Date(notes[0].updatedAt?.toDate?.() || Date.now()).toLocaleTimeString('ar-EG', {hour: '2-digit', minute:'2-digit'}) : 
+                            '--'}</div>
+                        <div>آخر ملاحظة</div>
+                    </div>
+                    <div class="stat-card">
+                        <div>📊 حجم البيانات</div>
+                        <div class="stat-value">${notes.reduce((acc, note) => acc + (note.content?.length || 0), 0)}</div>
+                        <div>حرف</div>
+                    </div>
                 `;
                 
-                snapshot.forEach((doc, index) => {
-                    const data = doc.data();
-                    resultDiv.innerHTML += `
-                        <div style="border:1px solid #ccc; padding:10px; margin:10px; background:#f9f9f9">
-                            <p><strong>#${index + 1} - ID:</strong> ${doc.id}</p>
-                            <p><strong>العنوان:</strong> ${data.title || 'بدون عنوان'}</p>
-                            <p><strong>المحتوى:</strong> ${data.content || 'فارغ'}</p>
-                            <p><strong>تاريخ الإنشاء:</strong> ${data.createdAt?.toDate?.() || 'غير معروف'}</p>
-                            <p><strong>آخر تحديث:</strong> ${data.updatedAt?.toDate?.() || 'غير معروف'}</p>
+                // عرض الملاحظات
+                let notesHTML = '';
+                notes.forEach((note, index) => {
+                    const hasCode = note.content && note.content.includes('```');
+                    const date = note.updatedAt ? 
+                        new Date(note.updatedAt.toDate()).toLocaleString('ar-EG') : 
+                        'غير معروف';
+                    
+                    notesHTML += `
+                        <div class="note-card">
+                            <div class="note-header">
+                                <div class="note-title">${note.title || 'بدون عنوان'}</div>
+                                <div class="note-id">#${index + 1}</div>
+                            </div>
+                            
+                            <div class="note-content">
+                                ${note.content || 'لا يوجد محتوى'}
+                            </div>
+                            
+                            <div class="note-footer">
+                                <div>
+                                    ${hasCode ? '<span class="code-indicator">⚡ يحتوي على أكواد</span>' : '📄 نص فقط'}
+                                </div>
+                                <div>
+                                    📅 ${date}
+                                </div>
+                            </div>
                         </div>
                     `;
                 });
                 
+                document.getElementById('notesContainer').innerHTML = notesHTML;
+                document.getElementById('lastUpdate').innerHTML = 
+                    `آخر تحديث للبيانات: ${new Date().toLocaleString('ar-EG')}`;
+                
             } catch (error) {
-                document.getElementById('result').innerHTML = `
-                    <h3 style="color:red">❌ خطأ في الاتصال</h3>
-                    <p>${error.message}</p>
+                console.error('خطأ في التحميل:', error);
+                document.getElementById('notesContainer').innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 50px; color: #e74c3c;">
+                        <h2>❌ خطأ في تحميل البيانات</h2>
+                        <p>${error.message}</p>
+                    </div>
                 `;
             }
         }
         
-        checkNotes();
+        // تشغيل التحديث لأول مرة
+        updateDashboard();
+        
+        // تحديث تلقائي كل 30 ثانية
+        setInterval(updateDashboard, 30000);
+        
+        // تحديث يدوي عند النقر
+        document.addEventListener('click', function(e) {
+            if (e.target.tagName === 'DIV' && e.target.classList.contains('dashboard')) {
+                updateDashboard();
+            }
+        });
     </script>
 </body>
 </html>
