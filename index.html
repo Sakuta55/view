@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>فحص قاعدة البيانات</title>
+</head>
+<body>
+    <h1>التحقق من عدد الملاحظات</h1>
+    <div id="result">جاري التحقق...</div>
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDzmBBnFmLHe2L-H4BbmlM8krkTWHIOG0c",
+            authDomain: "mynotesapp-83195.firebaseapp.com",
+            projectId: "mynotesapp-83195",
+            storageBucket: "mynotesapp-83195.firebasestorage.app",
+            messagingSenderId: "983612900174",
+            appId: "1:983612900174:web:489c457a7ee857f8ced41f",
+            measurementId: "G-7BJMMJ3PJG"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        
+        async function checkNotes() {
+            try {
+                const snapshot = await db.collection('notes').get();
+                const resultDiv = document.getElementById('result');
+                
+                resultDiv.innerHTML = `
+                    <h3>✅ تم الاتصال بنجاح</h3>
+                    <p><strong>المشروع:</strong> ${firebaseConfig.projectId}</p>
+                    <p><strong>عدد الملاحظات:</strong> ${snapshot.size}</p>
+                    <hr>
+                    <h4>تفاصيل الملاحظات:</h4>
+                `;
+                
+                snapshot.forEach((doc, index) => {
+                    const data = doc.data();
+                    resultDiv.innerHTML += `
+                        <div style="border:1px solid #ccc; padding:10px; margin:10px; background:#f9f9f9">
+                            <p><strong>#${index + 1} - ID:</strong> ${doc.id}</p>
+                            <p><strong>العنوان:</strong> ${data.title || 'بدون عنوان'}</p>
+                            <p><strong>المحتوى:</strong> ${data.content || 'فارغ'}</p>
+                            <p><strong>تاريخ الإنشاء:</strong> ${data.createdAt?.toDate?.() || 'غير معروف'}</p>
+                            <p><strong>آخر تحديث:</strong> ${data.updatedAt?.toDate?.() || 'غير معروف'}</p>
+                        </div>
+                    `;
+                });
+                
+            } catch (error) {
+                document.getElementById('result').innerHTML = `
+                    <h3 style="color:red">❌ خطأ في الاتصال</h3>
+                    <p>${error.message}</p>
+                `;
+            }
+        }
+        
+        checkNotes();
+    </script>
+</body>
+</html>
