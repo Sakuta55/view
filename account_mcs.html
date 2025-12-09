@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>حساب - MCS</title>
+    <link rel="stylesheet" href="news-style.css">
+    <link rel="stylesheet" href="download-style.css">
+    <!-- إضافة Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6686752576532474"
+     crossorigin="anonymous"></script>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <img src="images/profile.png" alt="شعار MCS">
+            </div>
+            <h1 class="page-title">الحساب</h1>
+        </header>
+        
+        <!-- عرض العملات -->
+        <!--<a href="account_mcs.html">-->
+        <img src="images/coin.png" alt="صورة العملة العائمة" class="floating-btn">
+        <!--</a>-->
+        <h3 class="floating2-btn" id="coinsDisplay">0</h3>
+        
+        <!-- معلومات المستخدم -->
+        <div id="userInfo" class="news-text" style="display: none;">
+            <b>الاسم : </b><b id="userName">...</b><br>
+            <b>البريد الإلكتروني : </b><b id="userEmail">...</b><br>
+            <b>عدد التحميلات : </b><b id="userDownloads">0</b>
+        </div>
+        
+        
+        
+        <!-- أزرار التحكم -->
+        <content>
+            <button id="loginBtn" class="download-btn" onclick="signInWithGoogle()">
+                تسجيل الدخول مع جوجل
+            </button>
+            <button id="logoutBtn" class="download-btn" style="display: none;" onclick="signOut()">
+                تسجيل الخروج
+            </button>
+        </content>
+        <br><br><br><hr><br><br>
+        <content>
+            <!--<a href="get_coin.html">
+                <button class="download-btn">الحصول على عملات +</button>
+            </a>-->
+        </content>
+        
+        <!-- <div class="user-stat">
+            <span class="stat-label">🔄 عدد التحميلات:</span>
+            <span id="userDownloads" class="stat-value">0</span>-->
+                    </div>
+                   <!-- ضعه في أي مكان في صفحتك (يفضل قبل إغلاق body) -->
+            <div id="coinCountdown" style="
+                position: fixed;
+                bottom: 20px;
+                left: 20px;
+                background: #2c3e50;
+                color: white;
+                padding: 10px 15px;
+                border-radius: 10px;
+                font-family: Arial, sans-serif;
+                font-size: 14px;
+                z-index: 9999;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                display: none;
+                border: 2px solid #3498db;
+                min-width: 200px;
+            ">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="color: #ffd700; font-size: 18px">🪙</span>
+                    <div>
+                        <div style="font-size: 12px; color: #bdc3c7;">المكافأة التالية خلال</div>
+                        <div style="font-size: 20px; font-weight: bold; text-align: center;">
+                            <span id="countdownTimer">30</span> ثانية
+                        </div>
+                    </div>
+                </div>
+            </div>
+        
+    </div>
+
+    <!-- الشريط السفلي -->
+    <!-- الشريط السفلي الثابت -->
+    <nav class="bottom-nav">
+        <a href="index.html" class="nav-item">
+            <img src="images/home.png" alt="الرئيسية" class="nav-icon">
+            <span>الرئيسية</span>
+        </a>
+        <a href="news.html" class="nav-item">
+            <img src="images/news.png" alt="الأخبار" class="nav-icon">
+            <span>الأخبار</span>
+        </a>
+        <a href="select_download.html" class="nav-item">
+            <img src="images/download.png" alt="التحميل" class="nav-icon">
+            <span>التحميل</span>
+        </a>
+        <a href="account_mcs.html" class="nav-item active">
+            <img src="images/profile.png" alt="الحساب" class="nav-icon">
+            <span>الحساب</span>
+        </a>
+        <a href="about.html" class="nav-item">
+            <img src="images/about.png" alt="حول الموقع" class="nav-icon">
+            <span>حول</span>
+        </a>
+    </nav>
+
+    <script src="account_mcs.js"></script>
+    <script src="get_coin.js"></script>
+    <style>
+    .floating-btn {
+        position: fixed;
+        top: 20px;
+        right: 25px;
+        width: 40px;
+        height: 40px; /* غيرت إلى 40px لتكون مربعة */
+        z-index: 1000;
+        cursor: pointer;
+    }
+    
+    .floating2-btn {
+        position: fixed;
+        top: 28px; /* ضبط الموقع الرأسي */
+        right: 70px; /* إبعادها عن الصورة أكثر */
+        z-index: 1000;
+        cursor: pointer;
+        color: #ffd700;
+        font-size: 18px;
+        font-weight: bold;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        min-width: 40px;
+        text-align: right;
+        background: rgba(0, 0, 0, 0.3); /* خلفية شبه شفافة */
+        padding: 2px 8px;
+        border-radius: 10px;
+        white-space: nowrap; /* لمنع التفاف النص */
+    }
+</style>
+</body>
+</html>
