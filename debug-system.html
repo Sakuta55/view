@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تصحيح بيانات Firestore - MCS</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        h1 {
+            color: #ffd700;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .problem-section, .solution-section {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #ff6b6b;
+        }
+        
+        .solution-section {
+            border-left-color: #4CAF50;
+        }
+        
+        h2 {
+            color: #ffd700;
+            margin-bottom: 15px;
+        }
+        
+        .problem-item, .solution-item {
+            margin-bottom: 10px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 5px;
+        }
+        
+        .problem-item {
+            border-left: 3px solid #ff6b6b;
+        }
+        
+        .solution-item {
+            border-left: 3px solid #4CAF50;
+        }
+        
+        .error {
+            color: #ff6b6b;
+            font-family: monospace;
+            background: rgba(255, 107, 107, 0.1);
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+        
+        .correct {
+            color: #4CAF50;
+            font-family: monospace;
+            background: rgba(76, 175, 80, 0.1);
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+        
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+            justify-content: center;
+        }
+        
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.3s;
+        }
+        
+        .fix-btn {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .fix-btn:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+        
+        .check-btn {
+            background: #2196F3;
+            color: white;
+        }
+        
+        .check-btn:hover {
+            background: #0b7dda;
+            transform: translateY(-2px);
+        }
+        
+        .reset-btn {
+            background: #ff9800;
+            color: white;
+        }
+        
+        .reset-btn:hover {
+            background: #e68900;
+            transform: translateY(-2px);
+        }
+        
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        .success {
+            background: rgba(76, 175, 80, 0.2);
+            border: 1px solid #4CAF50;
+            color: #4CAF50;
+        }
+        
+        .error-result {
+            background: rgba(255, 107, 107, 0.2);
+            border: 1px solid #ff6b6b;
+            color: #ff6b6b;
+        }
+        
+        .loading {
+            display: inline-block;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚨 تصحيح بيانات Firestore</h1>
+        
+        <div class="problem-section">
+            <h2>المشاكل المكتشفة:</h2>
+            <div class="problem-item">
+                <strong>حساب المؤسس (founder):</strong><br>
+                • البريد الحالي: <span class="error">Khartoum3smoaig@qq.com.au</span><br>
+                • البريد الصحيح: <span class="correct">Khartoum3smoal658@gmail.com</span><br>
+                • كلمة المرور الحالية: <span class="error">mcadmini2022-4</span><br>
+                • كلمة المرور الصحيحة: <span class="correct">mcsadmin202224</span>
+            </div>
+            
+            <div class="problem-item">
+                <strong>حساب المسؤول (default_admin):</strong><br>
+                • البريد الحالي: <span class="error">depottsdev@qmgf.com</span><br>
+                • البريد الصحيح: <span class="correct">depot1sdev@gmail.com</span><br>
+                • كلمة المرور الحالية: <span class="error">فارغة</span><br>
+                • الصلاحيات الحالية: <span class="error">صلاحية واحدة فقط</span><br>
+                • الصلاحيات المطلوبة: <span class="correct">جميع الصلاحيات (8 صلاحيات)</span>
+            </div>
+        </div>
+        
+        <div class="solution-section">
+            <h2>الحل المقترح:</h2>
+            <div class="solution-item">
+                1. تصحيح بيانات حساب المؤسس في Firestore<br>
+                2. تصحيح بيانات حساب المسؤول في Firestore<br>
+                3. إضافة كلمة المرور والصلاحيات المطلوبة<br>
+                4. اختبار نظام تسجيل الدخول بعد التصحيح
+            </div>
+        </div>
+        
+        <div class="actions">
+            <button class="check-btn" onclick="checkCurrentData()">
+                🔍 فحص البيانات الحالية
+            </button>
+            <button class="fix-btn" onclick="fixAllData()">
+                ⚡ تصحيح جميع البيانات
+            </button>
+            <button class="reset-btn" onclick="clearLocalStorage()">
+                🗑️ تنظيف localStorage
+            </button>
+        </div>
+        
+        <div id="result" class="result"></div>
+        
+        <div id="testLogin" style="margin-top: 30px; display: none;">
+            <h3>🔐 اختبار تسجيل الدخول بعد التصحيح:</h3>
+            <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px;">
+                <p>البريد: <strong>Khartoum3smoal658@gmail.com</strong></p>
+                <p>كلمة المرور: <strong>mcsadmin202224</strong></p>
+                <button onclick="window.location.href='index.html'" 
+                        style="background: #9C27B0; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
+                    🚀 تجربة تسجيل الدخول الآن
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function checkCurrentData() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.className = 'result';
+            resultDiv.innerHTML = '<p class="loading">⏳ جاري فحص البيانات...</p>';
+            resultDiv.style.display = 'block';
+            
+            try {
+                // فحص اتصال API
+                const response = await fetch('https://test-pozg.onrender.com/login/login/system-status');
+                const data = await response.json();
+                
+                if (data.success) {
+                    resultDiv.className = 'result success';
+                    resultDiv.innerHTML = `
+                        <h4>✅ حالة النظام الحالية:</h4>
+                        <pre style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 5px; overflow: auto;">
+${JSON.stringify(data.data, null, 2)}
+                        </pre>
+                        <p><strong>عدد المسؤولين:</strong> ${data.data.admins_count}</p>
+                        <p><strong>المؤسس موجود:</strong> ${data.data.founder_exists ? '✅ نعم' : '❌ لا'}</p>
+                    `;
+                } else {
+                    resultDiv.className = 'result error-result';
+                    resultDiv.innerHTML = `<p>❌ فشل فحص النظام: ${data.message}</p>`;
+                }
+                
+            } catch (error) {
+                resultDiv.className = 'result error-result';
+                resultDiv.innerHTML = `<p>❌ خطأ في الاتصال: ${error.message}</p>`;
+            }
+        }
+        
+        async function fixAllData() {
+            if (!confirm('⚠️ هل أنت متأكد من تصحيح جميع البيانات في Firestore؟\n\nهذا الإجراء سوف:\n1. يصحح بيانات حساب المؤسس\n2. يصحح بيانات حساب المسؤول\n3. يضيف الصلاحيات المفقودة')) {
+                return;
+            }
+            
+            const resultDiv = document.getElementById('result');
+            resultDiv.className = 'result';
+            resultDiv.innerHTML = '<p class="loading">⚡ جاري تصحيح البيانات...</p>';
+            resultDiv.style.display = 'block';
+            
+            try {
+                // استدعاء API للتصحيح
+                const response = await fetch('https://test-pozg.onrender.com/login/correct-data', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        action: 'fix_all',
+                        admin_id: 'system_correction'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    resultDiv.className = 'result success';
+                    resultDiv.innerHTML = `
+                        <h4>🎉 تم التصحيح بنجاح!</h4>
+                        <p>${data.message}</p>
+                        <p><strong>التغييرات التي تمت:</strong></p>
+                        <ul>
+                            <li>✅ تم تصحيح بريد وكلمة مرور المؤسس</li>
+                            <li>✅ تم تصحيح بريد وكلمة مرور المسؤول</li>
+                            <li>✅ تم إضافة جميع الصلاحيات المطلوبة</li>
+                        </ul>
+                        <p>يمكنك الآن اختبار تسجيل الدخول:</p>
+                    `;
+                    
+                    // إظهار قسم اختبار تسجيل الدخول
+                    document.getElementById('testLogin').style.display = 'block';
+                    
+                } else {
+                    resultDiv.className = 'result error-result';
+                    resultDiv.innerHTML = `<p>❌ فشل التصحيح: ${data.message}</p>`;
+                }
+                
+            } catch (error) {
+                resultDiv.className = 'result error-result';
+                resultDiv.innerHTML = `
+                    <p>❌ خطأ في التصحيح: ${error.message}</p>
+                    <p>يمكنك تصحيح البيانات يدوياً عن طريق:</p>
+                    <ol>
+                        <li>فتح <a href="https://console.firebase.google.com" target="_blank">Firebase Console</a></li>
+                        <li>الذهاب إلى Firestore Database</li>
+                        <li>تصحيح البيانات كما هو موضح أعلاه</li>
+                    </ol>
+                `;
+            }
+        }
+        
+        function clearLocalStorage() {
+            if (confirm('هل تريد تنظيف جميع البيانات المحفوظة في المتصفح؟')) {
+                localStorage.clear();
+                alert('✅ تم تنظيف localStorage بنجاح');
+                
+                const resultDiv = document.getElementById('result');
+                resultDiv.className = 'result success';
+                resultDiv.innerHTML = '<p>✅ تم تنظيف جميع البيانات المحلية</p>';
+                resultDiv.style.display = 'block';
+            }
+        }
+        
+        // فحص تلقائي عند تحميل الصفحة
+        window.addEventListener('load', () => {
+            setTimeout(checkCurrentData, 500);
+        });
+    </script>
+</body>
+</html>

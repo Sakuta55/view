@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>حل سريع لـ Firestore</title>
+</head>
+<body>
+    <h2>إضافة بيانات يدوياً إلى Firestore</h2>
+    <button onclick="addData()">إضافة البيانات الآن</button>
+    <div id="result"></div>
+    
+    <script>
+        async function addData() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '<p>جاري إضافة البيانات...</p>';
+            
+            // بيانات المؤسس
+            const founderData = {
+                email: "Khartoum3smoal658@gmail.com",
+                name: "المؤسس",
+                password: "mcsadmin202224",
+                permissions: ["المؤسس"]
+            };
+            
+            // بيانات المسؤول
+            const adminData = {
+                email: "depot1sdev@gmail.com",
+                name: "Simo Simo",
+                password: "",
+                permissions: [
+                    "النافذة المنبسقه",
+                    "الاخبار",
+                    "إصدارات التحميل",
+                    "المودات",
+                    "إرسال الكوين",
+                    "مكافأة الكوين",
+                    "إضافة ادمن",
+                    "إزالة ادمن"
+                ]
+            };
+            
+            try {
+                // استخدام Firebase REST API مباشرة
+                const projectId = "mcs-control-panel";
+                const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents`;
+                
+                // إضافة المؤسس
+                const founderResponse = await fetch(`${url}/admins/founder`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        fields: {
+                            email: { stringValue: founderData.email },
+                            name: { stringValue: founderData.name },
+                            password: { stringValue: founderData.password },
+                            permissions: { arrayValue: { 
+                                values: founderData.permissions.map(p => ({ stringValue: p }))
+                            }},
+                            createdAt: { stringValue: new Date().toISOString() }
+                        }
+                    })
+                });
+                
+                // إضافة المسؤول
+                const adminResponse = await fetch(`${url}/admins/default_admin`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        fields: {
+                            email: { stringValue: adminData.email },
+                            name: { stringValue: adminData.name },
+                            password: { stringValue: adminData.password },
+                            permissions: { arrayValue: { 
+                                values: adminData.permissions.map(p => ({ stringValue: p }))
+                            }},
+                            createdAt: { stringValue: new Date().toISOString() }
+                        }
+                    })
+                });
+                
+                resultDiv.innerHTML = `
+                    <p style="color: green; font-weight: bold;">✅ تمت إضافة البيانات بنجاح!</p>
+                    <p>يمكنك الآن:</p>
+                    <ol>
+                        <li>فتح <a href="index.html">صفحة تسجيل الدخول</a></li>
+                        <li>تسجيل الدخول بـ Google بحساب المؤسس</li>
+                        <li>استخدام كلمة المرور: <strong>mcsadmin202224</strong></li>
+                    </ol>
+                `;
+                
+            } catch (error) {
+                resultDiv.innerHTML = `<p style="color: red;">❌ خطأ: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>

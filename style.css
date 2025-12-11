@@ -1,231 +1,103 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+/* style.css - الإضافات */
+
+/* أزرار Google */
+.google-btn {
+    background: white;
+    color: #757575;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    border: 1px solid #ddd;
 }
 
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-    color: white;
-    min-height: 100vh;
-    padding-bottom: 80px; /* مساحة للشريط السفلي */
+.google-btn:hover {
+    background: #f5f5f5;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
-.container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
+/* رسائل النجاح */
+.success-message {
+    background: rgba(46, 204, 113, 0.2);
+    border: 1px solid rgba(46, 204, 113, 0.4);
+    color: #2ecc71;
+    padding: 12px;
+    border-radius: 8px;
+    margin-top: 20px;
+    font-weight: bold;
 }
 
-/* الهيدر */
-.header {
-    text-align: center;
-    margin-bottom: 40px;
-    padding-top: 20px;
-}
-
-.logo img {
-    width: 100px;
-    height: 100px;
+/* زر الإضافة العائم */
+.floating-add-btn {
+    position: fixed;
+    bottom: 50px;
+    right: 50px;
+    width: 60px;
+    height: 60px;
+    background: #ffd700;
+    color: #1e3c72;
     border-radius: 50%;
-    border: 3px solid white;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-}
-
-.site-title {
-    font-size: 2.5rem;
-    margin-top: 15px;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-}
-
-/* المحتوى الرئيسي */
-.main-content {
-    text-align: center;
-}
-
-.welcome-section {
-    margin-bottom: 50px;
-}
-
-.welcome-section h2 {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     font-size: 2rem;
+    text-decoration: none;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    transition: transform 0.3s ease;
+    z-index: 1000;
+}
+
+.floating-add-btn:hover {
+    transform: scale(1.1);
+}
+
+/* زر الموقع العائم */
+.floating-btn {
+    position: fixed;
+    bottom: 50px;
+    left: 50px;
+    width: 70px;
+    height: 60px;
+    z-index: 1000;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.floating-btn:hover {
+    transform: scale(1.1);
+}
+
+/* تنسيق العناوين */
+.control-header h1 {
+    font-size: 2.5rem;
     margin-bottom: 10px;
     color: #ffd700;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
 }
 
-.welcome-section p {
+.control-header p {
     font-size: 1.2rem;
     opacity: 0.9;
 }
 
-/* شبكة الأقسام */
-.sections-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 25px;
-    margin-top: 40px;
-}
-
-.section-card {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-    border-radius: 20px;
-    padding: 30px 20px;
-    text-align: center;
-    transition: transform 0.3s ease, background 0.3s ease;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.section-card:hover {
-    transform: translateY(-5px);
-    background: rgba(255, 255, 255, 0.15);
-}
-
-.section-icon {
-    font-size: 3rem;
-    margin-bottom: 15px;
-}
-
-.section-card h3 {
-    font-size: 1.5rem;
-    margin-bottom: 10px;
-    color: #ffd700;
-}
-
-.section-card p {
-    opacity: 0.8;
-    line-height: 1.5;
-}
-
-/* الشريط السفلي الثابت */
-.bottom-nav {
+/* زر الخروج */
+.logout-btn {
     position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: rgba(30, 60, 114, 0.95);
-    backdrop-filter: blur(10px);
-    border-top: 1px solid rgba(255, 255, 255, 0.2);
-    display: flex;
-    justify-content: space-around;
-    padding: 12px 0;
-    z-index: 1000;
-}
-
-.nav-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-decoration: none;
-    color: white;
-    transition: color 0.3s ease;
-    padding: 5px 15px;
-    border-radius: 10px;
-}
-
-.nav-item.active {
-    background: rgba(255, 255, 255, 0.1);
-}
-
-.nav-item:hover {
-    color: #ffd700;
-}
-
-.nav-icon {
-    width: 24px;
-    height: 24px;
-    margin-bottom: 5px;
-}
-
-.nav-item span {
-    font-size: 0.85rem;
-}
-
-/* النافذة المنبثقة */
-.popup {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.8);
-    z-index: 2000;
-    align-items: center;
-    justify-content: center;
-}
-
-.popup-content {
-    background: white;
-    border-radius: 15px;
-    padding: 30px;
-    max-width: 90%;
-    max-height: 90%;
-    position: relative;
-    text-align: center;
-    color: #333;
-}
-
-.close-btn {
-    position: absolute;
-    top: 15px;
+    top: 20px;
     left: 20px;
-    font-size: 2rem;
-    color: #333;
+    background: rgba(255,255,255,0.1);
+    color: white;
+    border: 1px solid rgba(255,255,255,0.3);
+    padding: 10px 20px;
+    border-radius: 8px;
     cursor: pointer;
-    width: 30px;
-    height: 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
+    text-decoration: none;
     transition: background 0.3s ease;
+    backdrop-filter: blur(10px);
+    z-index: 100;
 }
 
-.close-btn:hover {
-    background: rgba(0, 0, 0, 0.1);
-}
-
-.popup-text {
-    font-size: 1.3rem;
-    margin-bottom: 20px;
-    color: #1e3c72;
-    font-weight: bold;
-}
-
-.popup-image {
-    max-width: 100%;
-    max-height: 400px;
-    border-radius: 10px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-}
-
-/* التجاوب مع الشاشات الصغيرة */
-@media (max-width: 768px) {
-    .site-title {
-        font-size: 2rem;
-    }
-    
-    .welcome-section h2 {
-        font-size: 1.6rem;
-    }
-    
-    .sections-grid {
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 20px;
-    }
-    
-    .section-card {
-        padding: 25px 15px;
-    }
-    
-    .nav-item span {
-        font-size: 0.8rem;
-    }
-}
-img {
-  pointer-events: none;
-  user-select: none;
-  -webkit-user-drag: none;
+.logout-btn:hover {
+    background: rgba(255,255,255,0.2);
 }

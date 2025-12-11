@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إعداد الحساب - MCS</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-box">
+            <div class="login-header">
+                <h1>إعداد حساب جديد</h1>
+                <p>أنشئ كلمة مرورك للوصول إلى لوحة التحكم</p>
+            </div>
+            
+            <div class="login-form">
+                <div class="input-group">
+                    <label for="password">كلمة المرور الجديدة</label>
+                    <input type="password" id="password" placeholder="أدخل كلمة مرور قوية" required>
+                </div>
+                
+                <div class="input-group">
+                    <label for="confirmPassword">تأكيد كلمة المرور</label>
+                    <input type="password" id="confirmPassword" placeholder="أعد إدخال كلمة المرور" required>
+                </div>
+                
+                <button id="setupBtn" class="login-btn">إنشاء الحساب والدخول</button>
+                
+                <div id="errorMessage" class="error-message" style="display: none;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { db, collection, doc, setDoc, deleteDoc } from './firebase-config.js';
+        
+        const user = JSON.parse(localStorage.getItem('mcs_user'));
+        if (!user || user.type !== 'invitation') {
+            window.location.href = 'index.html';
+            throw new Error('غير مصرح بالوصول');
+        }
+        
+        document.getElementById('setupBtn').addEventListener('click', async () => {
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const errorDiv = document.getElementById('errorMessage');
+            
+            // التحقق من صحة المدخلات
+            if (!password || !confirmPassword) {
+                errorDiv.textContent = 'الرجاء ملء جميع الحقول';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                errorDiv.textContent = 'كلمات المرور غير متطابقة';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            if (password.length < 6) {
+                errorDiv.textContent = 'كلمة المرور يجب أن تكون 6 أحرف على الأقل';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            try {
+                // إنشاء بيانات المسؤول الجديد
+                const adminData = {
+                    email: user.email,
+                    name: user.name,
+                    password: password, // تخزين مشفر في بيئة حقيقية
+                    profileImage: user.photoURL,
+                    permissions: user.permissions || [],
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString(),
+                    createdBy: user.createdBy || 'system'
+                };
+                
+                // 1. إضافة المستخدم إلى مجموعة admins
+                const adminsCollection = collection(db, 'admins');
+                const newAdminDoc = await setDoc(doc(adminsCollection, user.id), adminData);
+                
+                console.log('تم إضافة المستخدم إلى admins:', user.id);
+                
+                // 2. حذف المستخدم من مجموعة invitations
+                const inviteDocRef = doc(db, 'invitations', user.id);
+                await deleteDoc(inviteDocRef);
+                
+                console.log('تم حذف المستخدم من invitations:', user.id);
+                
+                // 3. تحديث بيانات المستخدم في localStorage
+                user.type = 'admin';
+                user.permissions = adminData.permissions;
+                localStorage.setItem('mcs_user', JSON.stringify(user));
+                
+                // 4. حفظ حالة تسجيل الدخول
+                localStorage.setItem('controlLoggedIn', 'true');
+                localStorage.setItem('loginTime', new Date().getTime());
+                
+                // 5. توجيه إلى لوحة التحكم
+                window.location.href = 'control-main.html';
+                
+            } catch (error) {
+                console.error('خطأ في إنشاء الحساب:', error);
+                errorDiv.textContent = 'حدث خطأ أثناء إنشاء الحساب: ' + error.message;
+                errorDiv.style.display = 'block';
+            }
+        });
+        
+        // إضافة وظيفة تسجيل الخروج
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>

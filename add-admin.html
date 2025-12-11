@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إضافة مسؤولين - MCS</title>
+    <link rel="stylesheet" href="control-style.css">
+    <style>
+        .permissions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .permission-item {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .permission-item input {
+            width: 18px;
+            height: 18px;
+        }
+        .permission-item label {
+            cursor: pointer;
+            flex: 1;
+        }
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .back-btn {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .back-btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+    </style>
+</head>
+<body>
+    <button class="logout-btn" onclick="logout()">خروج</button>
+    
+    <div class="login-container">
+        <div class="login-box">
+            <div class="login-header">
+                <h1>إضافة مسؤول جديد</h1>
+                <p>أدخل بيانات المسؤول الجديد</p>
+            </div>
+            
+            <div class="login-form">
+                <div class="input-group">
+                    <label for="email">عنوان حساب Google</label>
+                    <input type="email" id="email" placeholder="example@gmail.com" required>
+                </div>
+                
+                <div class="input-group">
+                    <label for="name">اسم المسؤول (اختياري)</label>
+                    <input type="text" id="name" placeholder="اسم المسؤول">
+                </div>
+                
+                <div class="input-group">
+                    <label>الصلاحيات الممنوحة:</label>
+                    <div class="permissions-grid">
+                        <div class="permission-item">
+                            <input type="checkbox" id="popup" value="النافذة المنبسقه">
+                            <label for="popup">النافذة المنبسقه</label>
+                        </div>
+                        <div class="permission-item">
+                            <input type="checkbox" id="news" value="الاخبار">
+                            <label for="news">الاخبار</label>
+                        </div>
+                        <div class="permission-item">
+                            <input type="checkbox" id="download" value="إصدارات التحميل">
+                            <label for="download">إصدارات التحميل</label>
+                        </div>
+                        <div class="permission-item">
+                            <input type="checkbox" id="mods" value="المودات">
+                            <label for="mods">المودات</label>
+                        </div>
+                        <div class="permission-item">
+                            <input type="checkbox" id="send-coins" value="إرسال الكوين">
+                            <label for="send-coins">إرسال الكوين</label>
+                        </div>
+                        <div class="permission-item">
+                            <input type="checkbox" id="reward-coins" value="مكافأة الكوين">
+                            <label for="reward-coins">مكافأة الكوين</label>
+                        </div>
+                        <div class="permission-item">
+                            <input type="checkbox" id="add-admin" value="إضافة ادمن">
+                            <label for="add-admin">إضافة ادمن</label>
+                        </div>
+                        <div class="permission-item">
+                            <input type="checkbox" id="remove-admin" value="إزالة ادمن">
+                            <label for="remove-admin">إزالة ادمن</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button id="submitBtn" class="login-btn">إضافة المسؤول</button>
+                    <button id="backBtn" class="login-btn back-btn" onclick="window.location.href='control-main.html'">
+                        رجوع
+                    </button>
+                </div>
+                
+                <div id="errorMessage" class="error-message" style="display: none;"></div>
+                <div id="successMessage" class="success-message" style="display: none;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        // جزء السكربت في add-admin.html
+import { db, collection, addDoc } from './firebase-config.js';
+
+// ... التحقق من الصلاحيات
+
+document.getElementById('submitBtn').addEventListener('click', async () => {
+    const email = document.getElementById('email').value.trim();
+    const name = document.getElementById('name').value.trim();
+    const errorDiv = document.getElementById('errorMessage');
+    const successDiv = document.getElementById('successMessage');
+    
+    if (!email) {
+        errorDiv.textContent = 'الرجاء إدخال عنوان البريد الإلكتروني';
+        errorDiv.style.display = 'block';
+        successDiv.style.display = 'none';
+        return;
+    }
+    
+    // التحقق من صحة البريد الإلكتروني
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        errorDiv.textContent = 'الرجاء إدخال بريد إلكتروني صالح';
+        errorDiv.style.display = 'block';
+        successDiv.style.display = 'none';
+        return;
+    }
+    
+    // جمع الصلاحيات المحددة
+    const selectedPermissions = [];
+    document.querySelectorAll('.permission-item input:checked').forEach(checkbox => {
+        selectedPermissions.push(checkbox.value);
+    });
+    
+    try {
+        // 1. التحقق إذا كان المستخدم موجود بالفعل في admins
+        const adminsCollection = collection(db, 'admins');
+        const invitesCollection = collection(db, 'invitations');
+        
+        // 2. إنشاء دعوة جديدة في Firestore
+        const invitationData = {
+            email: email,
+            name: name || email.split('@')[0],
+            permissions: selectedPermissions,
+            createdBy: user.email,
+            createdByName: user.name,
+            createdAt: new Date().toISOString(),
+            status: 'pending'
+        };
+        
+        // 3. إضافة المستند إلى مجموعة invitations
+        const docRef = await addDoc(invitesCollection, invitationData);
+        
+        console.log('تم إنشاء دعوة جديدة بمعرف:', docRef.id);
+        
+        // 4. عرض رسالة النجاح
+        successDiv.textContent = `تم إضافة دعوة للمستخدم ${email} بنجاح. يمكنه الآن تسجيل الدخول باستخدام حسابه Google.`;
+        successDiv.style.display = 'block';
+        errorDiv.style.display = 'none';
+        
+        // 5. تفريغ الحقول
+        document.getElementById('email').value = '';
+        document.getElementById('name').value = '';
+        document.querySelectorAll('.permission-item input:checked').forEach(checkbox => {
+            checkbox.checked = false;
+        });
+        
+        // 6. إخفاء رسالة النجاح بعد 5 ثوانٍ
+        setTimeout(() => {
+            successDiv.style.display = 'none';
+        }, 5000);
+        
+    } catch (error) {
+        console.error('خطأ في إضافة الدعوة:', error);
+        errorDiv.textContent = 'حدث خطأ أثناء إضافة الدعوة: ' + error.message;
+        errorDiv.style.display = 'block';
+        successDiv.style.display = 'none';
+    }
+});
+        
+        
+    </script>
+</body>
+</html>
