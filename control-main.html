@@ -71,10 +71,7 @@
             <img src="site.png" alt="زر عائم" class="floating-btn">
         </a>
         
-        <!-- زر إضافة مسؤولين (فقط للمستخدمين الذين لديهم الصلاحية) -->
-        <a href="add-admin.html" id="addAdminBtn" class="floating-add-btn" style="display: none;">
-            <i class="fas fa-plus"></i>
-        </a>
+        
 
         <!-- شبكة خيارات التحكم -->
         <div class="control-grid" id="controlGrid">
@@ -98,6 +95,7 @@
         document.getElementById('userEmail').textContent = user.email;
         document.getElementById('userAvatar').src = user.photoURL || 'https://lh3.googleusercontent.com/a/ACg8ocIwrmQ4ZyLhsN0_5rdXUPR-TyQrVexf1h8jwHOzbgVDYhHUYA=s96-c';
         
+                // استبدل هذا الجزء
         // عرض الصلاحيات
         const permissionsDiv = document.getElementById('userPermissions');
         const permissions = user.permissions || [];
@@ -105,10 +103,10 @@
         if (permissions.includes('المؤسس')) {
             permissionsDiv.innerHTML = '<span class="permission-badge" style="background: rgba(255,0,0,0.2); color: #ff6b6b; border-color: rgba(255,0,0,0.3);">المؤسس</span>';
         } else if (permissions.length > 0) {
-            permissions.forEach(permission => {
-                permissionsDiv.innerHTML += `<span class="permission-badge">${permission}</span>`;
-            });
+            permissionsDiv.innerHTML += `<span class="permission-badge">مسؤول</span>`;
         }
+        
+        
         
         // تعريف الصلاحيات المطلوبة لكل قسم
         const sectionPermissions = {

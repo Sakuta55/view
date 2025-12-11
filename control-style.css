@@ -639,3 +639,62 @@ body {
 .logout-btn:hover {
     background: rgba(255,255,255,0.2);
 }
+
+/* أضف هذا في control-style.css */
+.user-details h3 {
+    word-wrap: break-word;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.user-details p {
+    word-wrap: break-word;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.user-header {
+    flex-wrap: wrap;
+}
+
+/* تخصيص لعرض البريد الطويل */
+#userEmail {
+    direction: ltr;
+    text-align: right;
+    unicode-bidi: bidi-override;
+    font-family: monospace;
+    font-size: 0.9rem;
+}
+/* أضف هذه التعديلات */
+.control-card h2 {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+    color: #ffd700;
+    word-wrap: break-word;
+    line-height: 1.3;
+}
+
+.control-card p {
+    opacity: 0.8;
+    line-height: 1.5;
+    font-size: 0.95rem;
+    word-wrap: break-word;
+}
+
+/* تحسين الاستجابة للشاشات الصغيرة */
+@media (max-width: 480px) {
+    .control-card {
+        padding: 20px 15px;
+        min-height: 180px;
+    }
+    
+    .control-card h2 {
+        font-size: 1.3rem;
+    }
+    
+    .control-card p {
+        font-size: 0.9rem;
+    }
+}

@@ -117,86 +117,115 @@
     </div>
 
     <script type="module">
-        // جزء السكربت في add-admin.html
-import { db, collection, addDoc } from './firebase-config.js';
-
-// ... التحقق من الصلاحيات
-
-document.getElementById('submitBtn').addEventListener('click', async () => {
-    const email = document.getElementById('email').value.trim();
-    const name = document.getElementById('name').value.trim();
-    const errorDiv = document.getElementById('errorMessage');
-    const successDiv = document.getElementById('successMessage');
+    import { db, collection, addDoc, query, where, getDocs } from './firebase-config.js';
     
-    if (!email) {
-        errorDiv.textContent = 'الرجاء إدخال عنوان البريد الإلكتروني';
-        errorDiv.style.display = 'block';
-        successDiv.style.display = 'none';
-        return;
+    // التحقق من تسجيل الدخول والصلاحيات
+    const currentUser = JSON.parse(localStorage.getItem('mcs_user'));
+    const isLoggedIn = localStorage.getItem('controlLoggedIn');
+    
+    if (!currentUser || !isLoggedIn) {
+        window.location.href = 'index.html';
     }
     
-    // التحقق من صحة البريد الإلكتروني
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-        errorDiv.textContent = 'الرجاء إدخال بريد إلكتروني صالح';
-        errorDiv.style.display = 'block';
-        successDiv.style.display = 'none';
-        return;
+    // تأكد من الصلاحيات
+    const hasPermission = currentUser.permissions && 
+        (currentUser.permissions.includes('المؤسس') || 
+         currentUser.permissions.includes('إضافة ادمن'));
+    
+    if (!hasPermission) {
+        alert('ليس لديك صلاحية لإضافة مسؤولين');
+        window.location.href = 'control-main.html';
     }
     
-    // جمع الصلاحيات المحددة
-    const selectedPermissions = [];
-    document.querySelectorAll('.permission-item input:checked').forEach(checkbox => {
-        selectedPermissions.push(checkbox.value);
-    });
-    
-    try {
-        // 1. التحقق إذا كان المستخدم موجود بالفعل في admins
-        const adminsCollection = collection(db, 'admins');
-        const invitesCollection = collection(db, 'invitations');
+    document.getElementById('submitBtn').addEventListener('click', async () => {
+        const email = document.getElementById('email').value.trim();
+        const name = document.getElementById('name').value.trim();
+        const errorDiv = document.getElementById('errorMessage');
+        const successDiv = document.getElementById('successMessage');
         
-        // 2. إنشاء دعوة جديدة في Firestore
-        const invitationData = {
-            email: email,
-            name: name || email.split('@')[0],
-            permissions: selectedPermissions,
-            createdBy: user.email,
-            createdByName: user.name,
-            createdAt: new Date().toISOString(),
-            status: 'pending'
-        };
-        
-        // 3. إضافة المستند إلى مجموعة invitations
-        const docRef = await addDoc(invitesCollection, invitationData);
-        
-        console.log('تم إنشاء دعوة جديدة بمعرف:', docRef.id);
-        
-        // 4. عرض رسالة النجاح
-        successDiv.textContent = `تم إضافة دعوة للمستخدم ${email} بنجاح. يمكنه الآن تسجيل الدخول باستخدام حسابه Google.`;
-        successDiv.style.display = 'block';
         errorDiv.style.display = 'none';
+        successDiv.style.display = 'none';
         
-        // 5. تفريغ الحقول
-        document.getElementById('email').value = '';
-        document.getElementById('name').value = '';
+        if (!email) {
+            errorDiv.textContent = 'الرجاء إدخال عنوان البريد الإلكتروني';
+            errorDiv.style.display = 'block';
+            return;
+        }
+        
+        // التحقق من صحة البريد الإلكتروني
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            errorDiv.textContent = 'الرجاء إدخال بريد إلكتروني صالح';
+            errorDiv.style.display = 'block';
+            return;
+        }
+        
+        // جمع الصلاحيات المحددة
+        const selectedPermissions = [];
         document.querySelectorAll('.permission-item input:checked').forEach(checkbox => {
-            checkbox.checked = false;
+            selectedPermissions.push(checkbox.value);
         });
         
-        // 6. إخفاء رسالة النجاح بعد 5 ثوانٍ
-        setTimeout(() => {
-            successDiv.style.display = 'none';
-        }, 5000);
-        
-    } catch (error) {
-        console.error('خطأ في إضافة الدعوة:', error);
-        errorDiv.textContent = 'حدث خطأ أثناء إضافة الدعوة: ' + error.message;
-        errorDiv.style.display = 'block';
-        successDiv.style.display = 'none';
-    }
-});
-        
-        
+        try {
+            // التحقق إذا كان المستخدم موجود بالفعل في admins
+            const adminsQuery = query(collection(db, 'admins'), where('email', '==', email));
+            const adminSnapshot = await getDocs(adminsQuery);
+            
+            if (!adminSnapshot.empty) {
+                errorDiv.textContent = 'هذا المستخدم مسجل بالفعل كمسؤول';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            // التحقق إذا كان المستخدم موجود في invitations
+            const invitesQuery = query(collection(db, 'invitations'), where('email', '==', email));
+            const inviteSnapshot = await getDocs(invitesQuery);
+            
+            if (!inviteSnapshot.empty) {
+                errorDiv.textContent = 'هذا المستخدم لديه دعوة قائمة بالفعل';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            // إنشاء دعوة جديدة في Firestore
+            const invitationData = {
+                email: email,
+                name: name || email.split('@')[0],
+                permissions: selectedPermissions,
+                createdBy: currentUser.email,
+                createdByName: currentUser.name,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+                status: 'pending'
+            };
+            
+            // إضافة المستند إلى مجموعة invitations
+            const docRef = await addDoc(collection(db, 'invitations'), invitationData);
+            
+            console.log('تم إنشاء دعوة جديدة بمعرف:', docRef.id);
+            
+            // عرض رسالة النجاح
+            successDiv.textContent = `✅ تم إضافة دعوة للمستخدم ${email} بنجاح. يمكنه الآن تسجيل الدخول باستخدام حسابه Google.`;
+            successDiv.style.display = 'block';
+            
+            // تفريغ الحقول
+            document.getElementById('email').value = '';
+            document.getElementById('name').value = '';
+            document.querySelectorAll('.permission-item input:checked').forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            
+            // إخفاء رسالة النجاح بعد 5 ثوانٍ
+            setTimeout(() => {
+                successDiv.style.display = 'none';
+            }, 5000);
+            
+        } catch (error) {
+            console.error('خطأ في إضافة الدعوة:', error);
+            errorDiv.textContent = 'حدث خطأ أثناء إضافة الدعوة: ' + error.message;
+            errorDiv.style.display = 'block';
+        }
+    });
     </script>
 </body>
 </html>

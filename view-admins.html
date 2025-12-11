@@ -11,15 +11,19 @@
             margin: 0 auto;
             padding: 20px;
         }
+        
         .admins-header {
             text-align: center;
             margin-bottom: 30px;
+            padding-top: 60px; /* مساحة لزر الخروج */
         }
+        
         .admins-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 20px;
         }
+        
         .admin-card {
             background: rgba(255,255,255,0.1);
             border-radius: 15px;
@@ -27,89 +31,59 @@
             position: relative;
             border: 1px solid rgba(255,255,255,0.2);
         }
+        
         .admin-header {
             display: flex;
             align-items: center;
             gap: 15px;
             margin-bottom: 15px;
         }
+        
         .admin-avatar {
             width: 60px;
             height: 60px;
             border-radius: 50%;
             border: 3px solid #ffd700;
+            flex-shrink: 0;
         }
+        
+        .admin-info {
+            flex: 1;
+            min-width: 0; /* مهم للتعامل مع النصوص الطويلة */
+        }
+        
         .admin-info h3 {
             margin: 0;
             color: #ffd700;
+            word-wrap: break-word;
         }
+        
         .admin-info p {
             margin: 5px 0 0;
             opacity: 0.8;
             font-size: 0.9rem;
+            word-wrap: break-word;
+            direction: ltr;
+            text-align: right;
         }
-        .permissions-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
-            margin: 10px 0;
-        }
-        .permission-tag {
+        
+        .admin-role {
+            display: inline-block;
             background: rgba(255,215,0,0.1);
             color: #ffd700;
-            padding: 3px 8px;
-            border-radius: 12px;
+            padding: 3px 10px;
+            border-radius: 15px;
             font-size: 0.8rem;
-            border: 1px solid rgba(255,215,0,0.2);
+            margin-top: 8px;
+            border: 1px solid rgba(255,215,0,0.3);
         }
-        .admin-actions {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-        }
-        .actions-btn {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 1.2rem;
-            cursor: pointer;
-            padding: 5px;
-            border-radius: 5px;
-            transition: background 0.3s;
-        }
-        .actions-btn:hover {
-            background: rgba(255,255,255,0.1);
-        }
-        .actions-menu {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            background: rgba(0,0,0,0.95);
-            border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 8px;
-            padding: 10px;
-            min-width: 150px;
-            display: none;
-            z-index: 1000;
-        }
-        .actions-menu button {
-            display: block;
-            width: 100%;
-            padding: 8px 12px;
-            background: none;
-            border: none;
-            color: white;
-            text-align: right;
-            cursor: pointer;
-            border-radius: 4px;
-            margin: 2px 0;
-        }
-        .actions-menu button:hover {
-            background: rgba(255,255,255,0.1);
-        }
-        .actions-menu button.delete {
+        
+        .role-founder {
+            background: rgba(255,0,0,0.1);
             color: #ff6b6b;
+            border-color: rgba(255,0,0,0.3);
         }
+        
         .floating-add-btn {
             position: fixed;
             bottom: 50px;
@@ -126,45 +100,21 @@
             text-decoration: none;
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
             transition: transform 0.3s;
+            z-index: 1000;
+            font-weight: bold;
         }
+        
         .floating-add-btn:hover {
             transform: scale(1.1);
+            text-decoration: none;
         }
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
-            z-index: 2000;
-            align-items: center;
-            justify-content: center;
-        }
-        .modal-content {
-            background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            padding: 30px;
-            width: 90%;
-            max-width: 500px;
-            border: 1px solid rgba(255,255,255,0.2);
-        }
-        .modal-header {
-            margin-bottom: 20px;
-        }
-        .modal-header h3 {
-            color: #ffd700;
-            margin: 0;
-        }
-        .modal-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-        }
-        .cancel-btn {
-            background: rgba(255,255,255,0.1);
+        
+        .no-admins {
+            text-align: center;
+            padding: 40px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            grid-column: 1 / -1;
         }
     </style>
 </head>
@@ -178,235 +128,100 @@
         </div>
         
         <div id="adminsList" class="admins-grid">
-            <!-- سيتم ملء قائمة المسؤولين هنا -->
+            <!-- سيتم ملء المسؤولين هنا -->
         </div>
     </div>
     
     <!-- زر الإضافة العائم -->
-    <a href="add-admin.html" id="addAdminBtn" class="floating-add-btn" style="display: none;">
-        <i class="fas fa-plus"></i>
+    <a href="add-admin.html" class="floating-add-btn">
+        <span style="color: #1e3c72; font-size: 28px;">+</span>
     </a>
-    
-    <!-- نافذة تعديل الصلاحيات -->
-    <div id="editModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>تعديل الصلاحيات</h3>
-                <p id="modalAdminInfo"></p>
-            </div>
-            <div class="permissions-grid">
-                <!-- نفس شبكة الصلاحيات من add-admin.html -->
-            </div>
-            <div class="modal-actions">
-                <button id="savePermissionsBtn" class="login-btn">حفظ</button>
-                <button id="cancelEditBtn" class="login-btn cancel-btn">إلغاء</button>
-            </div>
-        </div>
-    </div>
 
     <script type="module">
-        import { database, ref, get, update, remove } from './firebase-config.js';
+        // تحقق من تسجيل الدخول
+        const currentUser = JSON.parse(localStorage.getItem('mcs_user'));
+        const isLoggedIn = localStorage.getItem('controlLoggedIn');
         
-        // التحقق من صلاحيات المستخدم
-        const user = JSON.parse(localStorage.getItem('mcs_user'));
-        const permissions = user?.permissions || [];
-        
-        if (!permissions.includes('المؤسس') && !permissions.includes('إزالة ادمن')) {
-            alert('ليس لديك صلاحية لعرض المسؤولين');
-            window.location.href = 'control-main.html';
+        if (!currentUser || !isLoggedIn) {
+            window.location.href = 'index.html';
         }
         
-        // عرض زر الإضافة إذا كان لديه الصلاحية
-        if (permissions.includes('المؤسس') || permissions.includes('إضافة ادمن')) {
-            document.getElementById('addAdminBtn').style.display = 'flex';
+        // تحقق من الصلاحيات
+        const hasPermission = currentUser.permissions && 
+            (currentUser.permissions.includes('المؤسس') || 
+             currentUser.permissions.includes('إضافة ادمن'));
+        
+        // إخفاء زر الإضافة إذا لم يكن لديه الصلاحية
+        if (!hasPermission) {
+            document.querySelector('.floating-add-btn').style.display = 'none';
         }
         
-        let currentAdminId = null;
-        const editModal = document.getElementById('editModal');
-        const modalAdminInfo = document.getElementById('modalAdminInfo');
-        const cancelEditBtn = document.getElementById('cancelEditBtn');
-        const savePermissionsBtn = document.getElementById('savePermissionsBtn');
+        // استيراد Firebase
+        import { db, collection, getDocs } from './firebase-config.js';
         
-        // تحميل قائمة المسؤولين
         async function loadAdmins() {
             try {
-                const adminsRef = ref(database, 'admins');
-                const snapshot = await get(adminsRef);
+                const adminsList = document.getElementById('adminsList');
+                adminsList.innerHTML = '<div class="no-admins"><p>جاري تحميل المسؤولين...</p></div>';
                 
-                if (!snapshot.exists()) {
-                    document.getElementById('adminsList').innerHTML = 
-                        '<p style="text-align: center; width: 100%;">لا توجد حسابات مسؤولين</p>';
+                // جلب المسؤولين من Firestore
+                const querySnapshot = await getDocs(collection(db, "admins"));
+                
+                if (querySnapshot.empty) {
+                    adminsList.innerHTML = '<div class="no-admins"><p>لا يوجد مسؤولين في النظام</p></div>';
                     return;
                 }
                 
-                const admins = snapshot.val();
-                const adminsList = document.getElementById('adminsList');
                 adminsList.innerHTML = '';
                 
-                for (const [adminId, adminData] of Object.entries(admins)) {
-                    const isFounder = adminData.permissions?.includes('المؤسس');
-                    const canEdit = permissions.includes('المؤسس') && !isFounder;
-                    const canDelete = (permissions.includes('المؤسس') || 
-                                      permissions.includes('إزالة ادمن')) && !isFounder;
+                querySnapshot.forEach((doc) => {
+                    const admin = doc.data();
+                    const adminId = doc.id;
+                    
+                    const isFounder = admin.permissions && admin.permissions.includes('المؤسس');
+                    const roleClass = isFounder ? 'role-founder' : '';
+                    const roleText = isFounder ? 'المؤسس' : 'مسؤول';
                     
                     const adminCard = document.createElement('div');
                     adminCard.className = 'admin-card';
                     adminCard.innerHTML = `
-                        ${canEdit || canDelete ? `
-                            <div class="admin-actions">
-                                <button class="actions-btn" onclick="toggleActionsMenu('${adminId}', this)">⋯</button>
-                                <div class="actions-menu" id="menu-${adminId}">
-                                    ${canEdit ? `<button onclick="openEditModal('${adminId}')">تعديل الصلاحيات</button>` : ''}
-                                    ${canDelete ? `<button class="delete" onclick="deleteAdmin('${adminId}')">إزالة المسؤول</button>` : ''}
-                                </div>
-                            </div>
-                        ` : ''}
                         <div class="admin-header">
-                            <img src="${adminData.profileImage || 'https://lh3.googleusercontent.com/a/ACg8ocIwrmQ4ZyLhsN0_5rdXUPR-TyQrVexf1h8jwHOzbgVDYhHUYA=s96-c'}" 
-                                 alt="صورة ${adminData.name}" class="admin-avatar">
+                            <img src="${admin.profileImage || 'https://lh3.googleusercontent.com/a/ACg8ocIwrmQ4ZyLhsN0_5rdXUPR-TyQrVexf1h8jwHOzbgVDYhHUYA=s96-c'}" 
+                                 alt="${admin.name}" class="admin-avatar"
+                                 onerror="this.src='https://lh3.googleusercontent.com/a/ACg8ocIwrmQ4ZyLhsN0_5rdXUPR-TyQrVexf1h8jwHOzbgVDYhHUYA=s96-c'">
                             <div class="admin-info">
-                                <h3>${adminData.name || 'بدون اسم'}</h3>
-                                <p>${adminData.email}</p>
+                                <h3>${admin.name || 'بدون اسم'}</h3>
+                                <p>${admin.email}</p>
+                                <span class="admin-role ${roleClass}">${roleText}</span>
                             </div>
                         </div>
-                        <div class="permissions-list">
-                            ${adminData.permissions ? adminData.permissions.map(p => 
-                                `<span class="permission-tag">${p}</span>`
-                            ).join('') : 'لا توجد صلاحيات'}
+                        <div style="margin-top: 15px; font-size: 0.8rem; opacity: 0.7;">
+                            <div>تم الإنشاء: ${admin.createdAt ? new Date(admin.createdAt).toLocaleDateString('ar-EG') : 'غير معروف'}</div>
+                            ${admin.updatedAt ? `<div>آخر تحديث: ${new Date(admin.updatedAt).toLocaleDateString('ar-EG')}</div>` : ''}
                         </div>
-                        <p style="font-size: 0.8rem; opacity: 0.6; margin-top: 10px;">
-                            ${adminData.createdAt ? `تم الإنشاء: ${new Date(adminData.createdAt).toLocaleDateString('ar-EG')}` : ''}
-                        </p>
                     `;
                     
                     adminsList.appendChild(adminCard);
-                }
+                });
                 
             } catch (error) {
-                console.error('Error loading admins:', error);
-                alert('حدث خطأ في تحميل قائمة المسؤولين');
+                console.error('خطأ في تحميل المسؤولين:', error);
+                document.getElementById('adminsList').innerHTML = `
+                    <div class="no-admins">
+                        <p>حدث خطأ في تحميل المسؤولين</p>
+                        <p>${error.message}</p>
+                    </div>
+                `;
             }
         }
         
-        // إظهار/إخفاء قائمة الإجراءات
-        window.toggleActionsMenu = function(adminId, button) {
-            const menu = document.getElementById(`menu-${adminId}`);
-            const isVisible = menu.style.display === 'block';
-            
-            // إغلاق جميع القوائم الأخرى
-            document.querySelectorAll('.actions-menu').forEach(m => {
-                m.style.display = 'none';
-            });
-            
-            // تبديل القائمة الحالية
-            menu.style.display = isVisible ? 'none' : 'block';
-            
-            // إغلاق القائمة عند النقر خارجها
-            if (!isVisible) {
-                const closeMenu = (e) => {
-                    if (!menu.contains(e.target) && e.target !== button) {
-                        menu.style.display = 'none';
-                        document.removeEventListener('click', closeMenu);
-                    }
-                };
-                setTimeout(() => {
-                    document.addEventListener('click', closeMenu);
-                }, 0);
-            }
-        };
-        
-        // فتح نافذة تعديل الصلاحيات
-        window.openEditModal = async function(adminId) {
-            currentAdminId = adminId;
-            
-            try {
-                const adminRef = ref(database, `admins/${adminId}`);
-                const snapshot = await get(adminRef);
-                
-                if (snapshot.exists()) {
-                    const adminData = snapshot.val();
-                    modalAdminInfo.textContent = `تعديل صلاحيات: ${adminData.name || adminData.email}`;
-                    
-                    // ملء الصلاحيات الحالية
-                    const permissionsGrid = editModal.querySelector('.permissions-grid');
-                    permissionsGrid.innerHTML = '';
-                    
-                    const allPermissions = [
-                        'النافذة المنبسقه', 'الاخبار', 'إصدارات التحميل', 'المودات',
-                        'إرسال الكوين', 'مكافأة الكوين', 'إضافة ادمن', 'إزالة ادمن'
-                    ];
-                    
-                    allPermissions.forEach(permission => {
-                        const div = document.createElement('div');
-                        div.className = 'permission-item';
-                        div.innerHTML = `
-                            <input type="checkbox" id="edit-${permission}" value="${permission}" 
-                                   ${adminData.permissions?.includes(permission) ? 'checked' : ''}>
-                            <label for="edit-${permission}">${permission}</label>
-                        `;
-                        permissionsGrid.appendChild(div);
-                    });
-                    
-                    editModal.style.display = 'flex';
-                }
-            } catch (error) {
-                console.error('Error loading admin data:', error);
-                alert('حدث خطأ في تحميل بيانات المسؤول');
-            }
-        };
-        
-        // حفظ الصلاحيات المعدلة
-        savePermissionsBtn.addEventListener('click', async () => {
-            try {
-                const selectedPermissions = [];
-                editModal.querySelectorAll('.permission-item input:checked').forEach(checkbox => {
-                    selectedPermissions.push(checkbox.value);
-                });
-                
-                const adminRef = ref(database, `admins/${currentAdminId}`);
-                await update(adminRef, {
-                    permissions: selectedPermissions
-                });
-                
-                alert('تم تحديث الصلاحيات بنجاح');
-                editModal.style.display = 'none';
-                loadAdmins(); // إعادة تحميل القائمة
-                
-            } catch (error) {
-                console.error('Error updating permissions:', error);
-                alert('حدث خطأ في تحديث الصلاحيات');
-            }
-        });
-        
-        // إلغاء التعديل
-        cancelEditBtn.addEventListener('click', () => {
-            editModal.style.display = 'none';
-        });
-        
-        // حذف مسؤول
-        window.deleteAdmin = async function(adminId) {
-            if (!confirm('هل أنت متأكد من حذف هذا المسؤول؟')) {
-                return;
-            }
-            
-            try {
-                const adminRef = ref(database, `admins/${adminId}`);
-                await remove(adminRef);
-                
-                alert('تم حذف المسؤول بنجاح');
-                loadAdmins(); // إعادة تحميل القائمة
-                
-            } catch (error) {
-                console.error('Error deleting admin:', error);
-                alert('حدث خطأ في حذف المسؤول');
-            }
-        };
-        
-        // تحميل قائمة المسؤولين عند فتح الصفحة
+        // تحميل المسؤولين عند فتح الصفحة
         loadAdmins();
         
         function logout() {
-            localStorage.clear();
+            localStorage.removeItem('controlLoggedIn');
+            localStorage.removeItem('loginTime');
+            localStorage.removeItem('mcs_user');
             window.location.href = 'index.html';
         }
     </script>

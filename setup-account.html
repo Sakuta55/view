@@ -78,35 +78,37 @@
                     createdBy: user.createdBy || 'system'
                 };
                 
-                // 1. إضافة المستخدم إلى مجموعة admins
-                const adminsCollection = collection(db, 'admins');
-                const newAdminDoc = await setDoc(doc(adminsCollection, user.id), adminData);
-                
-                console.log('تم إضافة المستخدم إلى admins:', user.id);
-                
-                // 2. حذف المستخدم من مجموعة invitations
-                const inviteDocRef = doc(db, 'invitations', user.id);
-                await deleteDoc(inviteDocRef);
-                
-                console.log('تم حذف المستخدم من invitations:', user.id);
-                
-                // 3. تحديث بيانات المستخدم في localStorage
-                user.type = 'admin';
-                user.permissions = adminData.permissions;
-                localStorage.setItem('mcs_user', JSON.stringify(user));
-                
-                // 4. حفظ حالة تسجيل الدخول
-                localStorage.setItem('controlLoggedIn', 'true');
-                localStorage.setItem('loginTime', new Date().getTime());
-                
-                // 5. توجيه إلى لوحة التحكم
-                window.location.href = 'control-main.html';
-                
-            } catch (error) {
-                console.error('خطأ في إنشاء الحساب:', error);
-                errorDiv.textContent = 'حدث خطأ أثناء إنشاء الحساب: ' + error.message;
-                errorDiv.style.display = 'block';
-            }
+                // في setup-account.html، تأكد من هذا الجزء:
+try {
+    // 1. إضافة المستخدم إلى مجموعة admins
+    const adminsCollection = collection(db, 'admins');
+    const newAdminDoc = await setDoc(doc(adminsCollection, user.id), adminData);
+    
+    console.log('تم إضافة المستخدم إلى admins:', user.id);
+    
+    // 2. حذف المستخدم من مجموعة invitations
+    const inviteDocRef = doc(db, 'invitations', user.id);
+    await deleteDoc(inviteDocRef);
+    
+    console.log('تم حذف المستخدم من invitations:', user.id);
+    
+    // 3. تحديث بيانات المستخدم في localStorage
+    user.type = 'admin';
+    user.permissions = adminData.permissions;
+    localStorage.setItem('mcs_user', JSON.stringify(user));
+    
+    // 4. حفظ حالة تسجيل الدخول
+    localStorage.setItem('controlLoggedIn', 'true');
+    localStorage.setItem('loginTime', new Date().getTime());
+    
+    // 5. توجيه إلى لوحة التحكم
+    window.location.href = 'control-main.html';
+    
+} catch (error) {
+    console.error('خطأ في إنشاء الحساب:', error);
+    errorDiv.textContent = 'حدث خطأ أثناء إنشاء الحساب: ' + error.message;
+    errorDiv.style.display = 'block';
+}
         });
         
         // إضافة وظيفة تسجيل الخروج
