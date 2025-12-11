@@ -14,21 +14,31 @@
             padding: 15px;
             border-radius: 10px;
             margin-bottom: 20px;
+            flex-wrap: wrap;
         }
         .user-avatar {
             width: 60px;
             height: 60px;
             border-radius: 50%;
             border: 3px solid #ffd700;
+            flex-shrink: 0;
+        }
+        .user-details {
+            flex: 1;
+            min-width: 0;
         }
         .user-details h3 {
             margin: 0;
             color: #ffd700;
             font-size: 1.3rem;
+            word-wrap: break-word;
         }
         .user-details p {
             margin: 5px 0 0;
             opacity: 0.8;
+            word-wrap: break-word;
+            direction: ltr;
+            text-align: right;
         }
         .permission-badge {
             display: inline-block;
@@ -45,6 +55,11 @@
             pointer-events: none;
             cursor: not-allowed;
         }
+        .permission-badge-founder {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff6b6b;
+            border-color: rgba(255, 0, 0, 0.3);
+        }
     </style>
 </head>
 <body>
@@ -56,7 +71,8 @@
         <!-- الهيدر -->
         <header class="control-header">
             <div class="user-header">
-                <img id="userAvatar" class="user-avatar" alt="صورة المستخدم">
+                <img id="userAvatar" class="user-avatar" alt="صورة المستخدم"
+                     onerror="this.src='https://lh3.googleusercontent.com/a/ACg8ocIwrmQ4ZyLhsN0_5rdXUPR-TyQrVexf1h8jwHOzbgVDYhHUYA=s96-c'">
                 <div class="user-details">
                     <h3 id="userName"></h3>
                     <p id="userEmail"></p>
@@ -70,8 +86,6 @@
         <a href="https://boisterous-sunflower-2eb76d.netlify.app/">
             <img src="site.png" alt="زر عائم" class="floating-btn">
         </a>
-        
-        
 
         <!-- شبكة خيارات التحكم -->
         <div class="control-grid" id="controlGrid">
@@ -91,22 +105,19 @@
         }
         
         // عرض بيانات المستخدم
-        document.getElementById('userName').textContent = user.name;
+        document.getElementById('userName').textContent = user.name || user.email.split('@')[0];
         document.getElementById('userEmail').textContent = user.email;
         document.getElementById('userAvatar').src = user.photoURL || 'https://lh3.googleusercontent.com/a/ACg8ocIwrmQ4ZyLhsN0_5rdXUPR-TyQrVexf1h8jwHOzbgVDYhHUYA=s96-c';
         
-                // استبدل هذا الجزء
         // عرض الصلاحيات
         const permissionsDiv = document.getElementById('userPermissions');
         const permissions = user.permissions || [];
         
         if (permissions.includes('المؤسس')) {
-            permissionsDiv.innerHTML = '<span class="permission-badge" style="background: rgba(255,0,0,0.2); color: #ff6b6b; border-color: rgba(255,0,0,0.3);">المؤسس</span>';
-        } else if (permissions.length > 0) {
-            permissionsDiv.innerHTML += `<span class="permission-badge">مسؤول</span>`;
+            permissionsDiv.innerHTML = '<span class="permission-badge permission-badge-founder">المؤسس</span>';
+        } else {
+            permissionsDiv.innerHTML = '<span class="permission-badge">مسؤول</span>';
         }
-        
-        
         
         // تعريف الصلاحيات المطلوبة لكل قسم
         const sectionPermissions = {
@@ -184,13 +195,11 @@
             controlGrid.appendChild(card);
         });
         
-        // عرض زر إضافة مسؤولين إذا كان لديه الصلاحية
+        // عرض قسم إدارة المسؤولين إذا كان لديه الصلاحية
         const hasAddAdminPermission = permissions.includes('المؤسس') || 
                                     permissions.includes('إضافة ادمن');
         
         if (hasAddAdminPermission) {
-            document.getElementById('addAdminBtn').style.display = 'flex';
-            
             // إضافة قسم إدارة المسؤولين
             const adminSection = document.createElement('a');
             adminSection.href = 'view-admins.html';
@@ -209,6 +218,11 @@
             localStorage.removeItem('mcs_user');
             window.location.href = 'index.html';
         }
+        
+        // إضافة تحقق إضافي للتأكد من ظهور جميع الأقسام
+        console.log('صلاحيات المستخدم:', permissions);
+        console.log('هل يملك صلاحية إضافة مسؤولين؟', hasAddAdminPermission);
+        console.log('عدد الأقسام المعروضة:', controlGrid.children.length);
     </script>
 </body>
 </html>
