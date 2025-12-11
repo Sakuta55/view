@@ -20,7 +20,7 @@
         
         .admins-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 20px;
         }
         
@@ -30,58 +30,64 @@
             padding: 20px;
             position: relative;
             border: 1px solid rgba(255,255,255,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .admin-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
         }
         
         .admin-header {
             display: flex;
+            flex-direction: column;
             align-items: center;
-            gap: 15px;
+            text-align: center;
             margin-bottom: 15px;
         }
         
         .admin-avatar {
-            width: 60px;
-            height: 60px;
+            width: 80px;
+            height: 80px;
             border-radius: 50%;
             border: 3px solid #ffd700;
-            flex-shrink: 0;
+            margin-bottom: 15px;
         }
         
-        .admin-info {
-            flex: 1;
-            min-width: 0; /* مهم للتعامل مع النصوص الطويلة */
-        }
-        
-        .admin-info h3 {
+        .admin-name {
             margin: 0;
             color: #ffd700;
+            font-size: 1.4rem;
+            font-weight: bold;
             word-wrap: break-word;
-        }
-        
-        .admin-info p {
-            margin: 5px 0 0;
-            opacity: 0.8;
-            font-size: 0.9rem;
-            word-wrap: break-word;
-            direction: ltr;
-            text-align: right;
+            width: 100%;
         }
         
         .admin-role {
             display: inline-block;
-            background: rgba(255,215,0,0.1);
+            background: rgba(255,215,0,0.2);
             color: #ffd700;
-            padding: 3px 10px;
-            border-radius: 15px;
-            font-size: 0.8rem;
-            margin-top: 8px;
-            border: 1px solid rgba(255,215,0,0.3);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            border: 2px solid rgba(255,215,0,0.3);
+            font-weight: bold;
         }
         
         .role-founder {
-            background: rgba(255,0,0,0.1);
+            background: rgba(255,0,0,0.2);
             color: #ff6b6b;
             border-color: rgba(255,0,0,0.3);
+        }
+        
+        .admin-details {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            font-size: 0.85rem;
+            opacity: 0.7;
+            text-align: center;
         }
         
         .floating-add-btn {
@@ -116,6 +122,15 @@
             border-radius: 10px;
             grid-column: 1 / -1;
         }
+        
+        .admin-count {
+            background: rgba(255,215,0,0.1);
+            padding: 5px 15px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255,215,0,0.3);
+        }
     </style>
 </head>
 <body>
@@ -125,6 +140,7 @@
         <div class="admins-header">
             <h1>إدارة المسؤولين</h1>
             <p>عرض وتعديل حسابات المسؤولين في النظام</p>
+            <div id="adminCount" class="admin-count">جاري التحميل...</div>
         </div>
         
         <div id="adminsList" class="admins-grid">
@@ -169,8 +185,12 @@
                 
                 if (querySnapshot.empty) {
                     adminsList.innerHTML = '<div class="no-admins"><p>لا يوجد مسؤولين في النظام</p></div>';
+                    document.getElementById('adminCount').textContent = '0 مسؤول';
                     return;
                 }
+                
+                let founderCount = 0;
+                let adminCount = 0;
                 
                 adminsList.innerHTML = '';
                 
@@ -179,37 +199,45 @@
                     const adminId = doc.id;
                     
                     const isFounder = admin.permissions && admin.permissions.includes('المؤسس');
+                    
+                    if (isFounder) {
+                        founderCount++;
+                    } else {
+                        adminCount++;
+                    }
+                    
                     const roleClass = isFounder ? 'role-founder' : '';
-                    const roleText = isFounder ? 'المؤسس' : 'مسؤول';
+                    const roleText = isFounder ? '👑 المؤسس' : '👤 مسؤول';
+                    const adminName = admin.name || 'بدون اسم';
                     
                     const adminCard = document.createElement('div');
                     adminCard.className = 'admin-card';
                     adminCard.innerHTML = `
                         <div class="admin-header">
                             <img src="${admin.profileImage || 'https://lh3.googleusercontent.com/a/ACg8ocIwrmQ4ZyLhsN0_5rdXUPR-TyQrVexf1h8jwHOzbgVDYhHUYA=s96-c'}" 
-                                 alt="${admin.name}" class="admin-avatar"
+                                 alt="${adminName}" class="admin-avatar"
                                  onerror="this.src='https://lh3.googleusercontent.com/a/ACg8ocIwrmQ4ZyLhsN0_5rdXUPR-TyQrVexf1h8jwHOzbgVDYhHUYA=s96-c'">
-                            <div class="admin-info">
-                                <h3>${admin.name || 'بدون اسم'}</h3>
-                                <p>${admin.email}</p>
-                                <span class="admin-role ${roleClass}">${roleText}</span>
-                            </div>
+                            <h3 class="admin-name">${adminName}</h3>
+                            <span class="admin-role ${roleClass}">${roleText}</span>
                         </div>
-                        <div style="margin-top: 15px; font-size: 0.8rem; opacity: 0.7;">
+                        <div class="admin-details">
                             <div>تم الإنشاء: ${admin.createdAt ? new Date(admin.createdAt).toLocaleDateString('ar-EG') : 'غير معروف'}</div>
-                            ${admin.updatedAt ? `<div>آخر تحديث: ${new Date(admin.updatedAt).toLocaleDateString('ar-EG')}</div>` : ''}
                         </div>
                     `;
                     
                     adminsList.appendChild(adminCard);
                 });
                 
+                // تحديث العداد
+                document.getElementById('adminCount').textContent = 
+                    `${querySnapshot.size} مسؤول (${founderCount} مؤسس، ${adminCount} مسؤول)`;
+                
             } catch (error) {
                 console.error('خطأ في تحميل المسؤولين:', error);
                 document.getElementById('adminsList').innerHTML = `
                     <div class="no-admins">
                         <p>حدث خطأ في تحميل المسؤولين</p>
-                        <p>${error.message}</p>
+                        <p style="font-size: 0.9rem; opacity: 0.7;">${error.message}</p>
                     </div>
                 `;
             }
